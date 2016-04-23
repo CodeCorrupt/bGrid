@@ -1,28 +1,28 @@
 var bodyParser = require('body-parser')
 // Require Job framework
-var Job = require("./framework");
+var db = require("./framework");
 
 
 module.exports = function(app) {
   // configure app to use bodyParser()
   // this will let us get the data from a POST
   app.use(bodyParser.json());
-  
+
   app.get('/api/ping', function(req, res) {
     res.json({
-      'res': 'pong'
+      'message': 'pong'
     })
   })
-  
+
   app.post('/api/echo', function(req, res) {
     // Get a job from the client
     res.json(req.body);
   });
-  
-  // API call to send a job from db to the client
-  app.get('/api/jobs/dequeue', function(req, res) {
+
+  // API call to look at next job from db
+  app.get('/api/jobs/show', function(req, res) {
     // Get next job
-    Job.findOne({}, function (err, obj){
+    db.Job.findOne({"dispatch" : "true"}, function (err, obj){
       if (err) {
         console.log(err);
         res.json({"success":"0", "cause":"Error when getting job from db"})
@@ -33,6 +33,27 @@ module.exports = function(app) {
       }
       else {
         console.log('Job retrived!');
+        // Convert to JSON object so I can add the success key and then send
+        var jObj = obj.toJSON();
+        jObj.success = "1";
+        res.json(jObj);
+      }
+    });
+  });
+
+  // API call to remove a job from db
+  app.get('/api/jobs/remove', function(req, res) {
+    // Get next job
+    db.Job.findOne({}, function (err, obj){
+      if (err) {
+        console.log(err);
+        res.json({"success":"0", "cause":"Error when getting job from db"})
+      }
+      else if (!obj) {
+        console.log("No object found in DB");
+        res.json({"success":"0", "cause":"No object found in DB"})
+      }
+      else {
         // Dequeue the job
         obj.remove(function(err) {
           if (err) {
@@ -50,11 +71,29 @@ module.exports = function(app) {
       }
     });
   });
-  
-  // Peek at next job
-  app.post('/api/jobs/peek', function(req, res) {
+
+  // API call to send client all jobs
+  app.get('/api/jobs/show_all', function(req, res) {
     // Get next job
-    Job.findOne({}, function (err, obj){
+    db.Job.find({}, function (err, obj){
+      if (err) {
+        console.log(err);
+        res.json({"success":"0", "cause":"Error when getting jobs from db"})
+      }
+      else if (obj.length == 0) {
+        console.log("No object found in DB");
+        res.json({"success":"0", "cause":"No objects found in DB"})
+      }
+      else {
+        res.json(obj);
+      }
+    });
+  });
+
+  // API call to send a job from db to the client
+  app.get('/api/jobs/get', function(req, res) {
+    // Get next job
+    db.Job.findOne({"dispatch" : "true"}, function (err, obj){
       if (err) {
         console.log(err);
         res.json({"success":"0", "cause":"Error when getting job from db"})
@@ -64,19 +103,26 @@ module.exports = function(app) {
         res.json({"success":"0", "cause":"No object found in DB"})
       }
       else {
-        console.log('Job retrived!');
-        // Dequeue the job
-        console.log("Sucessfully peeked at job");
-        // Convert to JSON object so I can add the success key and then send
-        var jObj = obj.toJSON();
-        jObj.success = "1";
-        res.json(jObj);
+        obj.sent();
+        obj.save(function(err) {
+          if (err) {
+            console.log(err);
+            res.json({"success":"0", "cause":"Could not save updated object"})
+          }
+          else {
+            console.log('Job retrived and updated!');
+            // Convert to JSON object so I can add the success key and then send
+            var jObj = obj.toJSON();
+            jObj.success = "1";
+            res.json(jObj);
+          }
+        });
       }
     });
   });
-  
+
   // API call to save a job posted by a client
-  app.post('/api/jobs/enqueue', function(req, res) {
+  app.post('/api/jobs/send', function(req, res) {
     // Validate the job has all required parts
     if (!req.body.hasOwnProperty("code")) {
       res.json({"success": "0", "cause" : "Missing \"code\" property"});
@@ -87,12 +133,20 @@ module.exports = function(app) {
     else if (!req.body.hasOwnProperty("name")) {
       res.json({"success": "0", "cause" : "Missing \"name\" property"});
     }
+    else if (!req.body.hasOwnProperty("numRedundancy")) {
+      res.json({"success": "0", "cause" : "Missing \"numRedundancy\" property"});
+    }
+    else if (!req.body.hasOwnProperty("dispatch")) {
+      res.json({"success": "0", "cause" : "Missing \"dispatch\" property"});
+    }
     // Creade the job object
     else {
-      var newJob = Job({
+      var newJob = db.Job({
         name: req.body.name,
         author: req.body.author,
         code: req.body.code,
+        numRedundancy: req.body.numRedundancy,
+        dispatch: req.body.ispatch
       });
       // save the job
       newJob.save(function(err) {
