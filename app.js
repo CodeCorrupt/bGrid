@@ -3,19 +3,29 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+var ioRequests = require('./ioRequests');
+
+///// Routing /////
+app.use(express.static(__dirname + '/client'));
+
+// To overwrite the routing you can do the following
+// app.get('/', function(req, res){
+//   res.sendFile(__dirname + '/client/chat.html');
+// });
+
 //// API Stuff ////
 require("./api")(app);
 
+//// Socket.io ////
+io.on('connection', function(socket){
+  console.log("Client: " + socket.request.headers['x-forwarded-for'] + " has connected");
+  // Pass on request
+  ioRequests.routes(socket, io);
+});
 
-
-// io.on('connection', function(socket){
-//   socket.on('chat message', function(msg){
-//     io.emit('chat message', msg);
-//   });
-// });
-
+// Start Server ///
 var port = process.env.PORT || 8080;
-var ip = process.env.IP || "0.0.0.0"
+var ip = process.env.IP || "0.0.0.0";
 http.listen(port, ip, function() {
   console.log('listening on ' + ip + ':' + port);
 });

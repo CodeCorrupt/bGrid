@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <title>bGrid</title>
+
+    <script src="/js/jquery-2.1.4.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/pnotify.custom.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/pnotify.custom.min.css">
+    <style>
+      .ui-notify {
+        width: 100px !important;
+      }
+    </style>
+
+    <script>
+      /* global io */
+      /* global PNotify */
+      var socket = io.connect(location.hostname, {'forceNew':true});
+      socket.on('connect_error', function(data) {
+        console.log(data);
+        if(data.type == 'TransportError') {
+          new PNotify({
+            title:'Highspeed Websockets are not responding',
+            text: "Falling back to standard polling",
+            delay:5000
+          });
+
+          console.log('trying 80');
+          socket.disconnect();
+          socket = io.connect(location.hostname, {'forceNew':true});
+        }
+      });
+
+      /******************** Socket.io Functions ******************************/
+      /* Emit jobs */
+      function get_job() {
+        socket.emit('get_job');
+      }
+      socket.on('get_job_res', function(data) {
+        console.log(data)
+        if (data.success == 0) {
+          console.log(data.cause);
+        }
+        else {
+          // Plans to use Caja to sandbox code
+          //    https://developers.google.com/caja/
+          var ret = eval("(function() {" + data.code + "})();");
+          console.log(ret);
+          // Send result to server
+          socket.emit('job_return', {'id' : data._id, 'retValue' : ret});
+        }
+      });
+      socket.on('job_return_res', function(data) {
+          console.log(data);
+      })
+    </script>
+  </head>
+
+
+<!-- Content -->
+  <body>
+    <button onclick="get_job();">Get Job</button>
+  </body>
+</html>
