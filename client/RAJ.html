@@ -50,8 +50,13 @@
 }
 </style>
 <script>
+function disableBtn() {
+    document.getElementById("myBtn").disabled = true;
 
-
+}
+function undisableBtn() {
+    document.getElementById("myBtn").disabled = false;
+}
 </script>
 	</head>
 	<body>
@@ -69,14 +74,14 @@
 						</div>
 						<div class="col-md-6 col-sm-6 col-xs-6 text-right navicon">
 						<p> Hello Jesse!&nbsp&nbsp<img src="img/account-picture.png" alt="Boxify Logo"></p><a id="trigger-overlay" class="nav_slide_button nav-toggle"  href="#"><span></span></a>
+						
 						</div>
 					</div>
 					<div class="row hero-content">
 						<div class="col-md-12">
-							
-							<a href="AccountPage.html" class="use-btn animated fadeInUp" onclick="myFunction();" >&nbsp&nbsp Start<br>&nbspRunning<br>&nbsp&nbsp&nbspJobs</a>	
+							<span id="numberField"></span>
+							<a href="AccountPage" class="use-btn animated fadeInUp" onclick="return confirm('Are you sure you want to submit this job?(You Will Be Charged If You Click Ok)');" >&nbsp&nbsp Start<br>&nbspRunning<br>&nbsp&nbsp&nbspJobs</a>	
 
-							<input type="text" size="10" name="numero" id="result" value="result" style= "color: black"/>
 						
 						
 						</div>

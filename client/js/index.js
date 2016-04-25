@@ -11,7 +11,7 @@ $('.login').on('submit', function(e) {
     $this.addClass('ok');
     $state.html('Welcome back!');
 	setTimeout(function(){
-    $state(window.location = 'file:///C:/Users/Jesse%20PC/Documents/bGrid/AccountPage.html');
+    $state(window.location = 'AccountPage.html');
 }, 1000);
     setTimeout(function() {
       $state.html('Log in');
