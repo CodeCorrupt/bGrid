@@ -5,8 +5,11 @@ var db = require("./framework");
 
 module.exports = function(app) {
   // configure app to use bodyParser()
-  // this will let us get the data from a POST
-  app.use(bodyParser.json());
+  // parse application/json
+  app.use(bodyParser.json())
+  // parse application/x-www-form-urlencoded
+  app.use(bodyParser.urlencoded({ extended: false }))
+
 
   // API call to ping the server, ensure it's running
   app.get('/api/ping', function(req, res) {
@@ -181,6 +184,124 @@ module.exports = function(app) {
           }
         });
       } // End of for loop
+    }
+  });
+
+  /************************************
+   * Stuff for Data
+   ***********************************/
+
+  // API Call to submit Data for user
+  app.post('/api/data/send', function(req, res) {
+    if (!req.body.hasOwnProperty("forUser")) {
+      res.json({"success": "0", "cause" : "Missing \"forUser\" property"});
+    }
+    else if (!req.body.hasOwnProperty("forJob")) {
+      res.json({"success": "0", "cause" : "Missing \"forJob\" property"});
+    }
+    else if (!req.body.hasOwnProperty("forInstance")) {
+      res.json({"success": "0", "cause" : "Missing \"forInstance\" property"});
+    }
+    else if (!req.body.hasOwnProperty("data")) {
+      res.json({"success": "0", "cause" : "Missing \"data\" property"});
+    }
+    else {
+      if (!isJSON(req.body.data)) {
+        res.json({"success": "0", "cause" : "data is not JSON"});
+      }
+      else {
+        var stringyJSON = JSON.stringify(req.body.data);
+        var objJSON = JSON.parse(stringyJSON);
+
+        var newUserData = new db.UserData({
+          forUser:      req.body.forUser,
+          forJob:       req.body.forJob,
+          forInstance:  req.body.forInstance,
+          data:         objJSON
+        });
+        newUserData.save(function(err) {
+          if (err) {
+            console.log(err);
+            res.json({"success": "0", "cause" : "newUserData could not be saved to DB"});
+          }
+          else {
+            res.json({"success": "1"});
+          }
+        });
+      }
+    }
+  });
+
+  // API Call to get data from db
+  app.get('/api/data/get', function(req, res) {
+    if (!req.query.hasOwnProperty("forUser")) {
+      res.json({"success": "0", "cause" : "Missing \"forUser\" property"});
+    }
+    else if (!req.query.hasOwnProperty("forJob")) {
+      res.json({"success": "0", "cause" : "Missing \"forJob\" property"});
+    }
+    else if (!req.query.hasOwnProperty("forInstance")) {
+      res.json({"success": "0", "cause" : "Missing \"forInstance\" property"});
+    }
+    else {
+      db.UserData.findOne({
+        "forUser"     : req.query.forUser,
+        "forJob"      : req.query.forJob,
+        "forInstance" : req.query.forInstance
+      }, function (err, obj){
+        if (err) {
+          console.log(err);
+          res.json({"success": "0", "cause" : "Error finding data in DB"});
+        }
+        else if (!obj) {
+          res.json({"success":"0", "cause":"No object found in DB"})
+        }
+        else if (!obj.hasOwnProperty("data") && obj.data != "") {
+          res.json({"success":"0", "cause":"Objest had no data"})
+        }
+        else {
+          res.json(obj.data);
+        }
+      });
+    }
+  });
+
+  // API Call to remove data
+  app.delete('/api/data/remove', function(req, res) {
+    if (!req.query.hasOwnProperty("forUser")) {
+      res.json({"success": "0", "cause" : "Missing \"forUser\" property"});
+    }
+    else if (!req.query.hasOwnProperty("forJob")) {
+      res.json({"success": "0", "cause" : "Missing \"forJob\" property"});
+    }
+    else if (!req.query.hasOwnProperty("forInstance")) {
+      res.json({"success": "0", "cause" : "Missing \"forInstance\" property"});
+    }
+    else {
+      db.UserData.findOne({
+        "forUser"     : req.query.forUser,
+        "forJob"      : req.query.forJob,
+        "forInstance" : req.query.forInstance
+      }, function (err, obj){
+        if (err) {
+          console.log(err);
+          res.json({"success": "0", "cause" : "Error finding data in DB"});
+        }
+        else if (!obj) {
+          res.json({"success":"0", "cause":"No object found in DB"})
+        }
+        else {
+          obj.remove(function(err) {
+            if (err) {
+              console.log(err);
+              res.json({"success": "0", "cause" : "Error removing data"});
+            }
+            else {
+              res.json({"success" : "1"});
+            }
+          });
+        }
+      });
     }
   });
 };

@@ -73,6 +73,13 @@ var jobSchema = new Schema({
 });
 jobSchema.index({"author" : 1, "name" : 1, "instanceNum" : 1}, { "unique" : true });
 
+var userDataSchema = new Schema({
+  forUser:      String,
+  forJob:         String,
+  forInstance:    Number,
+  data:           JSON        // JSON String
+});
+userDataSchema.index({"forUser" : 1, "forJob" : 1, "forInstance" : 1}, { "unique" : true });
 
 //Metods
 jobSchema.methods.sent = function() {
@@ -98,6 +105,8 @@ function escapeRegExp(str) {
 
 //  This takes schemas and creates a collection/model in mongod
 var Job = mongoose.model('jobs', jobSchema);
+var UserData = mongoose.model('userdata', userDataSchema);
 
 // make this available publically
 module.exports.Job = Job;
+module.exports.UserData = UserData;
