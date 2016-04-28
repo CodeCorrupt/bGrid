@@ -38,20 +38,51 @@
 		<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
 		<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 		<![endif]-->
-		<style>
-		h3 {
-    display: block;
-    font-size: 2em;
-    margin-top: 50px;
-    margin-bottom: 0;
-    margin-left: 0;
-    margin-right: 0;
-    font-weight: bold;
-}
-</style>
+
 
 	</head>
 	<body>
+		<style>
+.button {
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #f4511e;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 28px;
+  padding: 20px;
+  width: 200px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.button span:after {
+  content: '»';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.button:hover span {
+  padding-right: 25px;
+}
+
+.button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+</style>
 		<!--[if lt IE 7]>
 		<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 		<![endif]-->
@@ -72,18 +103,30 @@
 						<div class="col-md-12">
 							<h1 class="animated fadeInDown">Input Your Job Here:</h1>
 						<form action="action_page.php">
-							 
-							  <textarea name="Text1" cols="1000" rows="1000" style="color: black; overflow-y: scroll; overflow-x: scroll; height: 400px; width: 1160px"></textarea>
-							  
-							  <input type="submit" onclick="return confirm('Are you sure you want to submit this job?(You Will Be Charged If You Click Ok)')" value="Submit" style="color: black">
-							</form> 							
-							
+            <DIV style="position: absolute; top:75px; left:150px; font-size: 26px">UserName:&nbsp&nbsp</font><input type="text" name="" style= "font-size: 26px; color: black; float:  ; width: 150px; height: 50px;"></div>
+            <DIV style="position: absolute; top:75px; left:650px; font-size: 26px">Project Name:&nbsp&nbsp <input type="text" name="" style= "font-size: 26px; color: black; float:right ; width: 150px; height: 50px;"></div><br>
+
+                <DIV style="position: absolute; top:155px; left:330px; font-size: 26px">Number of Redundancies: <select style="font-size: 26px; color: black; float: ; width: 150px; height: 50px;" name="">
+							    <option value="0">0</option>
+							    <option value="1">1</option>
+							    <option value="2">2</option>
+							    <option value="3">3</option>
+							    <option value="4">4</option>
+							    <option value="5">5</option>
+							  </select> </div>
+                <DIV style="position: absolute; top:250px; left:392px; font-size: 26px">Number of Instances:<input type="text" name="" style="font-size: 26px; color: black; float: ; width: 150px; height: 50px;"></div>
+							   <DIV style="position: absolute; top:325px; left:150px;">Enter Job Here:<br><textarea name="" cols="1000" rows="1000" style="color: black; overflow-y: scroll; overflow-x: scroll; height: 160px; width: 835px"></textarea></div>
+
+							 <input class="button" type="submit"  style="position: absolute; top:515px; left:450px;" onclick="return confirm('Are you sure you want to submit this job?(You Will Be Charged If You Click Ok)')" value="Submit">
+
+							</form>
+
 						</div>
 					</div>
 				</div>
 			</section>
 		</header>
-		
+
 		<section class="video" id="about">
 			<div class="container">
 				<div class="row">
@@ -96,10 +139,10 @@
 				</div>
 			</div>
 		</section>
-		
-		
 
-		
+
+
+
 		<section class="screenshots" id="screenshots">
 			<div class="container-fluid">
 				<div class="row">

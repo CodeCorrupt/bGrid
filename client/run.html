@@ -39,6 +39,7 @@
       function get_job() {
         socket.emit('get_job');
       }
+
       socket.on('get_job_res', function(data) {
         console.log(data)
         if (data.success == 0) {
@@ -47,7 +48,7 @@
         else {
           // Plans to use Caja to sandbox code
           //    https://developers.google.com/caja/
-          var ret = eval("(function() {" + data.code + "})();");
+          var ret = new Function(data.code)();
           console.log(ret);
           // Send result to server
           socket.emit('job_return', {'id' : data._id, 'retValue' : ret});
@@ -55,7 +56,7 @@
       });
       socket.on('job_return_res', function(data) {
           console.log(data);
-      })
+      });
     </script>
   </head>
 
