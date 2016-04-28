@@ -350,23 +350,3 @@ function randomValueBase64 (len) {
         .replace(/\+/g, '0')  // replace '+' with '0'
         .replace(/\//g, '0'); // replace '/' with '0'
 }
-
-// Parses a file and replaces special strings with values
-function parseFileForSpecialChar(fileName, instanceNum, numInstances) {
-  fs.readFile(fileName, 'utf8', function (err, data) {
-    if (err) {
-      return console.log(err);
-    }
-    var result = data;
-    result = result.replace(new RegExp(escapeRegExp('[[[numInstances]]]'), 'g'), numInstances);
-    result = result.replace(new RegExp(escapeRegExp('[[[instanceNum]]]'), 'g'), instanceNum);
-
-    fs.writeFile(fileName, result, 'utf8', function (err) {
-       if (err) return console.log(err);
-    });
-  });
-}
-
-function escapeRegExp(str) {
-    return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
-}

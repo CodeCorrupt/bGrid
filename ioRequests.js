@@ -1,4 +1,5 @@
-var db = require("./framework");
+var db = require('./framework');
+var fs = require('fs');
 
 module.exports.routes = function (socket, io) {
   // Chat example stuff
@@ -34,7 +35,23 @@ module.exports.routes = function (socket, io) {
             // Convert to JSON object so I can add the success key and then send
             res = obj.toJSON();
             res.success = "1";
-            socket.emit('get_job_res', res);
+            // parse the file into code
+            fs.readFile(res.file, 'utf8', function (err, data) {
+              if (err) {
+                console.log(err);
+                 res = {"success" : 0, "cause" : "Error reading code file"};
+                 socket.emit('get_job_res', res);
+              }
+              else {
+                var stringCode = data;
+                stringCode = stringCode.replace(new RegExp('[[[numInstances]]]'.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'g'), res.numInstances);
+                stringCode = stringCode.replace(new RegExp('[[[instanceNum]]]'.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'g'), res.instanceNum);
+
+                // Set the code of res(ponse) to the string code and emit it!
+                res.code = stringCode;
+                socket.emit('get_job_res', res);
+              }
+            });
           }
         });
       }
