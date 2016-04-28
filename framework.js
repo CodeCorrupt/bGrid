@@ -38,10 +38,26 @@ mongoose.connection.db.on('reconnect', function(ref) {
 
 //Schemas
 var jobSchema = new Schema({
-  name:           String,
   author:         String,
+  name:           String,
   code:           String,
   returnValue:    [String],
+  dispatch: {
+    type:         Boolean,
+    default:      true
+  },
+  numInstances: {
+    type:         Number,
+    default:      1
+  },
+  instanceNum: {
+    type:         Number,
+    default:      1
+  },
+  numRedundancy: {            // Number of duplicates to run
+    type:         Number,
+    default:      1
+  },
   numStarted: {               // Number of clientes that have started
     type:         Number,
     default:      0
@@ -50,19 +66,13 @@ var jobSchema = new Schema({
     type:         Number,
     default:      0
   },
-  numRedundancy: {            // Number of duplicates to run
-    type:         Number,
-    default:      1
-  },
-  dispatch: {
-    type:         Boolean,
-    default:      true
-  },
   submitted: {
     type:         Date,
     default:      Date.now
   }
 });
+jobSchema.index({"author" : 1, "name" : 1, "instanceNum" : 1}, { "unique" : true });
+
 
 //Metods
 jobSchema.methods.sent = function() {
@@ -75,7 +85,18 @@ jobSchema.methods.returned = function(value) {
   this.numFinished++;
 }
 
-//  This takes the jobSchema and creates a collection/model in mongodb named 'jobs'
+jobSchema.methods.process = function() {
+  var strcd = this.code;
+  strcd = strcd.replace(new RegExp(escapeRegExp('[[[numInstances]]]'), 'g'), this.numInstances);
+  strcd = strcd.replace(new RegExp(escapeRegExp('[[[instanceNum]]]'), 'g'), this.instanceNum);
+  this.code = strcd;
+}
+
+function escapeRegExp(str) {
+    return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+
+//  This takes schemas and creates a collection/model in mongod
 var Job = mongoose.model('jobs', jobSchema);
 
 // make this available publically
