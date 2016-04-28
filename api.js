@@ -2,6 +2,10 @@ var bodyParser = require('body-parser')
 // Require Job framework
 var db = require("./framework");
 
+var fs = require('fs');
+var busboy = require('connect-busboy');
+var crypto = require('crypto');
+
 
 module.exports = function(app) {
   // configure app to use bodyParser()
@@ -10,6 +14,7 @@ module.exports = function(app) {
   // parse application/x-www-form-urlencoded
   app.use(bodyParser.urlencoded({ extended: false }))
 
+  app.use(busboy());
 
   // API call to ping the server, ensure it's running
   app.get('/api/ping', function(req, res) {
@@ -116,75 +121,93 @@ module.exports = function(app) {
     });
   });
 
-  // API call to send a job to db
-  app.post('/api/jobs/send', function(req, res) {
-    // Validate the job has all required parts
-    if (!req.body.hasOwnProperty("code")) {
-      res.json({"success": "0", "cause" : "Missing \"code\" property"});
-    }
-    else if (!req.body.hasOwnProperty("author")) {
-      res.json({"success": "0", "cause" : "Missing \"author\" property"});
-    }
-    else if (!req.body.hasOwnProperty("name")) {
-      res.json({"success": "0", "cause" : "Missing \"name\" property"});
-    }
-    else if (!req.body.hasOwnProperty("numRedundancy")) {
-      res.json({"success": "0", "cause" : "Missing \"numRedundancy\" property"});
-    }
-    else if (!req.body.hasOwnProperty("dispatch")) {
-      res.json({"success": "0", "cause" : "Missing \"dispatch\" property"});
-    }
-    // Creade the job object
-    else {
-      // If requested specific number of instances then count
-      var numInstances = 1;
-      if (req.body.hasOwnProperty("numInstances")) {
-        if (req.body.numInstances >= 1) {     // Also ensure that it's a num
-          numInstances = req.body.numInstances;
-        }
+  // API call to upload job file
+  app.post('/api/jobs/upload', function(req, res) {
+    var values = {};
+    var fstream;
+    req.pipe(req.busboy);
+    req.busboy.on('file', function (fieldname, file, filename) {
+      values.file = __dirname + '/uploads/' + randomValueBase64(8) + ".js"; // TODO: Instead of random, make this hash of file
+      console.log("Uploading: " + filename + " as:");
+      console.log("     " + values.file);
+      fstream = fs.createWriteStream(values.file);
+      file.pipe(fstream);
+    });
+    // Parse all fields into json object values
+    req.busboy.on('field', function(fieldname, val) {
+      values[fieldname] = val;
+    });
+    // When all is parsed (finished)
+    req.busboy.on('finish', function() {
+      // Change checkbox value to t/f instead of on off
+      values.dispatch = (values.dispatch == "on") ? true : false;
+      // Validate the job has all required parts
+      if (!values.hasOwnProperty("file")) {
+        res.json({"success": "0", "cause" : "Missing \"file\" property"});
       }
+      else if (!values.hasOwnProperty("author")) {
+        res.json({"success": "0", "cause" : "Missing \"author\" property"});
+      }
+      else if (!values.hasOwnProperty("name")) {
+        res.json({"success": "0", "cause" : "Missing \"name\" property"});
+      }
+      else if (!values.hasOwnProperty("numRedundancy")) {
+        res.json({"success": "0", "cause" : "Missing \"numRedundancy\" property"});
+      }
+      else if (!values.hasOwnProperty("dispatch")) {
+        res.json({"success": "0", "cause" : "Missing \"dispatch\" property"});
+      }
+      // Creade the job object
+      else {
+        // If requested specific number of instances then count
+        var numInstances = 1;
+        if (values.hasOwnProperty("numInstances")) {
+          if (values.numInstances >= 1) {     // Also ensures that it's a num
+            numInstances = values.numInstances;
+          }
+        }
 
-      // We want to create one job per instance
-      // Need a semaphore to make sure everything is a success
-      var semaphore = 0;
-      var successCount = 0;
-      for (var i = 1; i <= numInstances; i++) {
-        var newJob = db.Job({
-          name:           req.body.name,
-          author:         req.body.author,
-          code:           req.body.code,
-          numInstances:   numInstances,
-          instanceNum:    i,
-          numRedundancy:  req.body.numRedundancy,
-          dispatch:       req.body.ispatch
-        });
-        // Process the new job (Replace the things)
-        newJob.process();
-        // save the job
-        semaphore++;
-        newJob.save(function(err) {
-          if (err) {
-            console.log(err);
-            semaphore--;
-          }
-          else {
-            successCount++;
-            semaphore--;
-          }
-          // If this perticular call back was the last one, then return
-          if (semaphore == 0) {
-            // If success count is not the same as the numInstances
-            if (successCount != numInstances) {
-              console.log('Error creating job(s)');
-              res.json({"success":"0", "cause":"Error when saving job(s) to db"})
+        // We want to create one job per instance
+        // Need a semaphore to make sure everything is a success
+        var semaphore = 0;
+        var successCount = 0;
+        for (var i = 1; i <= numInstances; i++) {
+          var newJob = db.Job({
+            name:           values.name,
+            author:         values.author,
+            file:           values.file,
+            numInstances:   numInstances,
+            instanceNum:    i,
+            numRedundancy:  values.numRedundancy,
+            dispatch:       values.ispatch
+          });
+          // save the job
+          semaphore++;
+          newJob.save(function(err) {
+            if (err) {
+              console.log(err);
+              semaphore--;
             }
             else {
-              res.json({"success": "1"});
+              successCount++;
+              semaphore--;
             }
-          }
-        });
-      } // End of for loop
-    }
+            // If this perticular call back was the last one, then return
+            if (semaphore == 0) {
+              // If success count is not the same as the numInstances
+              if (successCount != numInstances) {
+                console.log('Error creating job(s)');
+                res.json({"success":"0", "cause":"Error when saving job(s) to db"})
+              }
+              else {
+                //res.json({"success": "1"});
+                res.redirect('back'); //TODO: Make this redirect somewhere uselful
+              }
+            }
+          });
+        } // End of for loop
+      }
+    });
   });
 
   /************************************
@@ -306,6 +329,7 @@ module.exports = function(app) {
   });
 };
 
+// Ensures whatever you give it is JSON
 function isJSON (something) {
     if (typeof something != 'string')
         something = JSON.stringify(something);
@@ -316,4 +340,33 @@ function isJSON (something) {
     } catch (e) {
         return false;
     }
+}
+
+// Generate a random base64 string of given length
+function randomValueBase64 (len) {
+    return crypto.randomBytes(Math.ceil(len * 3 / 4))
+        .toString('base64')   // convert to base64 format
+        .slice(0, len)        // return required number of characters
+        .replace(/\+/g, '0')  // replace '+' with '0'
+        .replace(/\//g, '0'); // replace '/' with '0'
+}
+
+// Parses a file and replaces special strings with values
+function parseFileForSpecialChar(fileName, instanceNum, numInstances) {
+  fs.readFile(fileName, 'utf8', function (err, data) {
+    if (err) {
+      return console.log(err);
+    }
+    var result = data;
+    result = result.replace(new RegExp(escapeRegExp('[[[numInstances]]]'), 'g'), numInstances);
+    result = result.replace(new RegExp(escapeRegExp('[[[instanceNum]]]'), 'g'), instanceNum);
+
+    fs.writeFile(fileName, result, 'utf8', function (err) {
+       if (err) return console.log(err);
+    });
+  });
+}
+
+function escapeRegExp(str) {
+    return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }

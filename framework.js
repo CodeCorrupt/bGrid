@@ -40,7 +40,7 @@ mongoose.connection.db.on('reconnect', function(ref) {
 var jobSchema = new Schema({
   author:         String,
   name:           String,
-  code:           String,
+  file:          String,
   returnValue:    [String],
   dispatch: {
     type:         Boolean,
@@ -90,17 +90,6 @@ jobSchema.methods.sent = function() {
 jobSchema.methods.returned = function(value) {
   this.returnValue.push(value);
   this.numFinished++;
-}
-
-jobSchema.methods.process = function() {
-  var strcd = this.code;
-  strcd = strcd.replace(new RegExp(escapeRegExp('[[[numInstances]]]'), 'g'), this.numInstances);
-  strcd = strcd.replace(new RegExp(escapeRegExp('[[[instanceNum]]]'), 'g'), this.instanceNum);
-  this.code = strcd;
-}
-
-function escapeRegExp(str) {
-    return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }
 
 //  This takes schemas and creates a collection/model in mongod

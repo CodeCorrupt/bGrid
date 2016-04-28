@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <title>bGrid</title>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script>
+      var x = document.createElement("INPUT");
+      x.setAttribute("type", "file");
+    </script>
+  </head>
+
+
+<!-- Content -->
+  <body>
+    <h1>Upload form</h1>
+    <form id="code-upload" enctype="multipart/form-data" action="/api/jobs/upload" method="POST">
+      <p>
+        Author Username: <br>
+        <input type="text" name="author" size="30">
+      </p>
+      <p>
+        Job name: <br>
+        <input type="text" name="name" size="30">
+      </p>
+      <p>
+        Number of instances: <br>
+        <input type="number" name="numInstances" size="30">
+      </p>
+      <p>
+        Number of redundency: <br>
+        <input type="number" name="numRedundancy" size="30">
+      </p>
+      <p>
+        Please select a javascript file:<br>
+        <input type="file" name="code" size="40">
+      </p>
+      <p>
+        Dispatch: <br>
+        <input type="checkbox" name="dispatch" size="30" checked>
+      </p>
+      <div>
+        <input type="submit" value="Send">
+      </div>
+    </form>
+    <hr>
+  </body>
+</html>
