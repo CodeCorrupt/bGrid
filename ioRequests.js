@@ -18,7 +18,6 @@ module.exports.routes = function (socket, io) {
         socket.emit('get_job_res', res);
       }
       else if (!obj) {
-        console.log("No object found in DB");
         res = {"success":"0", "cause":"No object found in DB"};
         socket.emit('get_job_res', res);
       }
@@ -31,7 +30,6 @@ module.exports.routes = function (socket, io) {
             socket.emit('get_job_res', res);
           }
           else {
-            console.log('Job retrived and updated!');
             // Convert to JSON object so I can add the success key and then send
             res = obj.toJSON();
             res.success = "1";

@@ -248,10 +248,10 @@ module.exports = function(app) {
           res.json({"success": "0", "cause" : "Error finding data in DB"});
         }
         else if (!obj) {
-          res.json({"success":"0", "cause":"No object found in DB"})
+          res.json({"success":"0", "cause":"No object found in DB"});
         }
-        else if (!obj.hasOwnProperty("data") && obj.data != "") {
-          res.json({"success":"0", "cause":"Objest had no data"})
+        else if (!obj.data) {
+          res.json({"success":"0", "cause":"Object had no data"});
         }
         else {
           res.json(obj.data);
