@@ -92,35 +92,6 @@ module.exports = function(app) {
     });
   });
 
-  // API call to get a job from db
-  app.get('/api/jobs/get', function(req, res) {
-    // Get next job
-    db.Job.findOne({"dispatch" : "true"}, function (err, obj){
-      if (err) {
-        console.log(err);
-        res.json({"success":"0", "cause":"Error when getting job from db"})
-      }
-      else if (!obj) {
-        res.json({"success":"0", "cause":"No object found in DB"})
-      }
-      else {
-        obj.sent();
-        obj.save(function(err) {
-          if (err) {
-            console.log(err);
-            res.json({"success":"0", "cause":"Could not save updated object"})
-          }
-          else {
-            // Convert to JSON object so I can add the success key and then send
-            var jObj = obj.toJSON();
-            jObj.success = "1";
-            res.json(jObj);
-          }
-        });
-      }
-    });
-  });
-
   // API call to upload job file
   app.post('/api/jobs/upload', function(req, res) {
     var values = {};
