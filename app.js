@@ -6,7 +6,8 @@ var io = require('socket.io')(http);
 var ioRequests = require('./ioRequests');
 
 ///// Routing /////
-app.use(express.static(__dirname + '/client'));
+app.use('/', express.static(__dirname + '/client'));
+app.use('/uploads', express.static(__dirname + '/uploads'));
 
 // To overwrite the routing you can do the following
 // app.get('/', function(req, res){
