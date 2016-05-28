@@ -48,6 +48,9 @@
         else {
           // Plans to use Caja to sandbox code
           //    https://developers.google.com/caja/
+          var div = document.getElementById('userCode');
+          div.innerHTML = "";
+          div.appendChild(document.createTextNode(data.code));
           var ret = new Function(data.code)();
           console.log(ret);
           // Send result to server
@@ -63,6 +66,8 @@
 
 <!-- Content -->
   <body>
+    <div id='userCode'></div>
+    <br>
     <button onclick="get_job();">Get Job</button>
   </body>
 </html>
