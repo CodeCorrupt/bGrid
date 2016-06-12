@@ -42,3 +42,4 @@ uploads
 # Typescript stuffs
 *.js
 *.js.map
+typings/

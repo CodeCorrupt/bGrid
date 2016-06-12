@@ -1,3 +1,4 @@
+/// <reference path="typings/index.d.ts" />
 var bodyParser = require('body-parser')
 // Require Job framework
 var db = require("./framework");

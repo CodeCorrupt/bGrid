@@ -1,3 +1,4 @@
+/// <reference path="typings/index.d.ts" />
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var connected = false;

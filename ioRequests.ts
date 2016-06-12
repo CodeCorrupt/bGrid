@@ -1,3 +1,4 @@
+/// <reference path="typings/index.d.ts" />
 var db = require('./framework');
 var fs = require('fs');
 
