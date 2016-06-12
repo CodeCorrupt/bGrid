@@ -38,3 +38,7 @@ data
 
 # uploaded files by user
 uploads
+
+# Typescript stuffs
+*.js
+*.js.map
