@@ -11,7 +11,7 @@ module.exports.routes = function (socket, io) {
   // Return a job.
   socket.on('get_job', function() {
     // Get next job
-    var res = "";
+    var res;
     db.Job.findOne({"dispatch" : "true"}, function (err, obj) {
       if (err) {
         console.log(err);
@@ -71,7 +71,7 @@ module.exports.routes = function (socket, io) {
             socket.emit('job_return_res', res);
           }
           else {
-            var res = {"success":"1"};
+            var res = {"success":"1", "cause" : ""};
             socket.emit('job_return_res', res);
           }
         });

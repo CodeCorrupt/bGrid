@@ -26,8 +26,8 @@ io.on('connection', function(socket){
 });
 
 // Start Server ///
-var port = process.env.PORT || 8080;
-var ip = process.env.IP || "0.0.0.0";
+var port : number = 8080;
+var ip : string = "0.0.0.0";
 http.listen(port, ip, function() {
   console.log('listening on ' + ip + ':' + port);
 });

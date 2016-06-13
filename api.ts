@@ -1,12 +1,11 @@
 /// <reference path="typings/index.d.ts" />
 var bodyParser = require('body-parser')
+var cryptography = require('crypto');
 // Require Job framework
 var db = require("./framework");
 
 var fs = require('fs');
 var busboy = require('connect-busboy');
-var crypto = require('crypto');
-
 
 module.exports = function(app) {
   // configure app to use bodyParser()
@@ -95,7 +94,7 @@ module.exports = function(app) {
 
   // API call to upload job file
   app.post('/api/jobs/upload', function(req, res) {
-    var values = {};
+    var values = new Job();
     var fstream;
     req.pipe(req.busboy);
     req.busboy.on('file', function (fieldname, file, filename) {
@@ -316,7 +315,7 @@ function isJSON (something) {
 
 // Generate a random base64 string of given length
 function randomValueBase64 (len) {
-    return crypto.randomBytes(Math.ceil(len * 3 / 4))
+    return cryptography.randomBytes(Math.ceil(len * 3 / 4))
         .toString('base64')   // convert to base64 format
         .slice(0, len)        // return required number of characters
         .replace(/\+/g, '0')  // replace '+' with '0'
