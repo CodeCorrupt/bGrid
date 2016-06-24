@@ -1,12 +1,30 @@
 {
-  "name": "bGrid",
+  "name": "bgrid",
   "version": "0.0.1",
-  "description": "A browser based grid computing platform",
+  "description": "A grid computig network for your browser",
+  "main": "app.js",
   "dependencies": {
     "body-parser": "1.15.0",
     "connect-busboy": "0.0.2",
     "express": "4.13.4",
     "mongoose": "4.4.12",
     "socket.io": "1.4.5"
-  }
+  },
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodeCorrupt/bGrid.git"
+  },
+  "keywords": [
+    "Grid",
+    "Computing"
+  ],
+  "author": "Tyler Hoyt <tyler.hoyt@kindlingapps.com>",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/CodeCorrupt/bGrid/issues"
+  },
+  "homepage": "https://github.com/CodeCorrupt/bGrid#readme"
 }
