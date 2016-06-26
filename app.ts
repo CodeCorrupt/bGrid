@@ -1,5 +1,6 @@
 /// <reference path="typings/index.d.ts" />
-var express = require('express');
+import * as express from 'express';
+//var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -26,8 +27,8 @@ io.on('connection', function(socket){
 });
 
 // Start Server ///
-var port : number = 8080;
-var ip : string = "0.0.0.0";
+var port : number = process.env.PORT || 8080;
+var ip : string = process.env.IP || "0.0.0.0";
 http.listen(port, ip, function() {
   console.log('listening on ' + ip + ':' + port);
 });

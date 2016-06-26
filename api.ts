@@ -1,10 +1,10 @@
 /// <reference path="typings/index.d.ts" />
-var bodyParser = require('body-parser')
-var cryptography = require('crypto');
+import * as bodyParser from 'body-parser';
+import * as cryptography from 'crypto';
 // Require Job framework
-var db = require("./framework");
+import * as db from './framework';
+import * as fs from 'fs';
 
-var fs = require('fs');
 var busboy = require('connect-busboy');
 
 module.exports = function(app) {
@@ -56,7 +56,7 @@ module.exports = function(app) {
       }
       else {
         // Convert to JSON object so I can add the success key and then send
-        var jObj = obj.toJSON();
+        var jObj: any = obj.toJSON();
         jObj.success = "1";
         res.json(jObj);
       }
@@ -83,7 +83,7 @@ module.exports = function(app) {
           }
           else {
             // Convert to JSON object so I can add the success key and then send
-            var jObj = obj.toJSON();
+            var jObj : any= obj.toJSON();
             jObj.success = "1";
             res.json(jObj);
           }
@@ -143,7 +143,7 @@ module.exports = function(app) {
         var semaphore = 0;
         var successCount = 0;
         for (var i = 1; i <= numInstances; i++) {
-          var newJob = db.Job({
+          var newJob = new db.Job({
             name:           values.name,
             author:         values.author,
             file:           values.file,
@@ -242,7 +242,7 @@ module.exports = function(app) {
         "forUser"     : req.query.forUser,
         "forJob"      : req.query.forJob,
         "forInstance" : req.query.forInstance
-      }, function (err, obj){
+      }, function (err, obj : any){
         if (err) {
           console.log(err);
           res.json({"success": "0", "cause" : "Error finding data in DB"});

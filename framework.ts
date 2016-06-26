@@ -1,9 +1,14 @@
 /// <reference path="typings/index.d.ts" />
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var connected = false;
+import * as mongoose from 'mongoose';
 
-mongoose.connect('mongodb://localhost/bgrid');
+// Constants
+const host = process.env.MONGO_HOST || "localhost";
+const port = process.env.MONGO_PORT || "27017";
+const dbname = process.env.MONGO_DBNAME || "bgrid";
+
+var connected : boolean = false;
+
+mongoose.connect('mongodb://' + host + "/" + dbname + ":" + port);
 
 mongoose.connection.on('open', function(ref) {
   connected = true;
@@ -38,7 +43,7 @@ mongoose.connection.db.on('reconnect', function(ref) {
 
 
 //Schemas
-var jobSchema = new Schema({
+var jobSchema = new mongoose.Schema({
   author:         String,
   name:           String,
   file:          String,
@@ -74,7 +79,7 @@ var jobSchema = new Schema({
 });
 jobSchema.index({"author" : 1, "name" : 1, "instanceNum" : 1}, { "unique" : true });
 
-var userDataSchema = new Schema({
+var userDataSchema = new mongoose.Schema({
   forUser:      String,
   forJob:         String,
   forInstance:    Number,
@@ -94,9 +99,5 @@ jobSchema.methods.returned = function(value) {
 }
 
 //  This takes schemas and creates a collection/model in mongod
-var Job = mongoose.model('jobs', jobSchema);
-var UserData = mongoose.model('userdata', userDataSchema);
-
-// make this available publically
-module.exports.Job = Job;
-module.exports.UserData = UserData;
+export var Job = mongoose.model('jobs', jobSchema);
+export var UserData = mongoose.model('userdata', userDataSchema);

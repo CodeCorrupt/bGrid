@@ -1,6 +1,6 @@
 /// <reference path="typings/index.d.ts" />
-var db = require('./framework');
-var fs = require('fs');
+import * as db from './framework';
+import * as fs from 'fs';
 
 module.exports.routes = function (socket, io) {
   // Chat example stuff
@@ -12,7 +12,7 @@ module.exports.routes = function (socket, io) {
   socket.on('get_job', function() {
     // Get next job
     var res;
-    db.Job.findOne({"dispatch" : "true"}, function (err, obj) {
+    db.Job.findOne({"dispatch" : "true"}, function (err, obj : any) {
       if (err) {
         console.log(err);
         res = {"success":"0", "cause":"Error when getting job from db"};
@@ -58,7 +58,7 @@ module.exports.routes = function (socket, io) {
   });
 
   socket.on('job_return', function(msg) {
-    db.Job.findById(msg.id, function(err, obj) {
+    db.Job.findById(msg.id, function(err, obj : any) {
       if (err) {
         var res = {"success":"0", "cause":"Error finding by id"};
         socket.emit('job_return_res', res);
