@@ -94,7 +94,7 @@ module.exports = function(app) {
 
   // API call to upload job file
   app.post('/api/jobs/upload', function(req, res) {
-    var values = new Job();
+    var values : any = {}; //TODO: Clean this up so it doesn't have to be any
     var fstream;
     req.pipe(req.busboy);
     req.busboy.on('file', function (fieldname, file, filename) {
